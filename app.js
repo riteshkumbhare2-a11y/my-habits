@@ -11,19 +11,27 @@ function save() {
 function today() {
   return new Date().toISOString().slice(0, 10);
 }
-// ⬇ Export full data backup
+// ⬇ Export full data backup (mobile-safe)
 function exportData() {
   const blob = new Blob(
     [JSON.stringify(data, null, 2)],
     { type: "application/json" }
   );
 
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "habit-backup.json";
-  a.click();
-}
+  const url = URL.createObjectURL(blob);
 
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "habit-backup.json";
+
+  // 🔑 Required for mobile/PWA
+  document.body.appendChild(a);
+  a.click();
+
+  // Cleanup
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
 // ⬆ Import full data backup
 function importData(event) {
   const file = event.target.files[0];
