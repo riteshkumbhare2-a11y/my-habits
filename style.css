@@ -52,3 +52,26 @@ footer {
   border-radius: 6px;
   font-weight: bold;
 }
+.heatmap {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.day {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 4px;
+  background: #1e293b;
+}
+
+.day.done {
+  background: #22c55e;
+}
+
+.month-label {
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: 0.7;
+}

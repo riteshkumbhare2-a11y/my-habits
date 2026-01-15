@@ -39,18 +39,73 @@ function streak(habit) {
   return s;
 }
 
+// 🔥 HEATMAP LOGIC
+function buildHeatmap(habit) {
+  const container = document.createElement("div");
+  container.className = "heatmap";
+
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+
+  const firstDay = new Date(year, month, 1);
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  // Offset for first weekday
+  for (let i = 0; i < firstDay.getDay(); i++) {
+    container.appendChild(document.createElement("div"));
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(year, month, d)
+      .toISOString()
+      .slice(0, 10);
+
+    const day = document.createElement("div");
+    day.className = "day";
+
+    if (habit.log[date]) {
+      day.classList.add("done");
+    }
+
+    container.appendChild(day);
+  }
+
+  return container;
+}
+
 function render() {
   app.innerHTML = "";
 
   data.habits.forEach(h => {
     const div = document.createElement("div");
     div.className = "habit";
-    div.innerHTML = `
-      <h3>${h.name}</h3>
-      <p>🔥 Streak: ${streak(h)}</p>
-      <button>${h.log[today()] ? "Undo" : "Done Today"}</button>
-    `;
-    div.querySelector("button").onclick = () => toggleHabit(h);
+
+    const title = document.createElement("h3");
+    title.textContent = h.name;
+
+    const streakText = document.createElement("p");
+    streakText.textContent = `🔥 Streak: ${streak(h)}`;
+
+    const btn = document.createElement("button");
+    btn.textContent = h.log[today()] ? "Undo" : "Done Today";
+    btn.onclick = () => toggleHabit(h);
+
+    const heatmap = buildHeatmap(h);
+
+    const monthLabel = document.createElement("div");
+    monthLabel.className = "month-label";
+    monthLabel.textContent = new Date().toLocaleString("default", {
+      month: "long",
+      year: "numeric"
+    });
+
+    div.appendChild(title);
+    div.appendChild(streakText);
+    div.appendChild(btn);
+    div.appendChild(heatmap);
+    div.appendChild(monthLabel);
+
     app.appendChild(div);
   });
 
@@ -58,26 +113,6 @@ function render() {
   addBtn.textContent = "+ Add Habit";
   addBtn.onclick = addHabit;
   app.appendChild(addBtn);
-}
-
-function exportData() {
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "habit-backup.json";
-  a.click();
-}
-
-function importData(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    data = JSON.parse(reader.result);
-    save();
-    render();
-  };
-  reader.readAsText(file);
 }
 
 render();
