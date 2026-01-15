@@ -11,7 +11,39 @@ function save() {
 function today() {
   return new Date().toISOString().slice(0, 10);
 }
+// ⬇ Export full data backup
+function exportData() {
+  const blob = new Blob(
+    [JSON.stringify(data, null, 2)],
+    { type: "application/json" }
+  );
 
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "habit-backup.json";
+  a.click();
+}
+
+// ⬆ Import full data backup
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const imported = JSON.parse(reader.result);
+      if (!imported.habits) throw new Error("Invalid backup file");
+      data = imported;
+      save();
+      render();
+      alert("Backup restored successfully");
+    } catch {
+      alert("Invalid backup file");
+    }
+  };
+  reader.readAsText(file);
+}
 // ➕ Add habit
 function addHabit() {
   const name = prompt("Habit name?");
