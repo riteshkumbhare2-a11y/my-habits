@@ -29,7 +29,7 @@ function toggleHabit(habit) {
   render();
 }
 
-// 🔥 Calculate streak
+// 🔥 Streak
 function streak(habit) {
   let s = 0;
   let d = new Date();
@@ -63,7 +63,7 @@ function deleteHabit(habit) {
   render();
 }
 
-// 📆 Heatmap builder (current month)
+// 📆 Heatmap (current month)
 function buildHeatmap(habit) {
   const container = document.createElement("div");
   container.className = "heatmap";
@@ -75,7 +75,6 @@ function buildHeatmap(habit) {
   const firstDay = new Date(year, month, 1);
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-  // Empty cells before month starts
   for (let i = 0; i < firstDay.getDay(); i++) {
     container.appendChild(document.createElement("div"));
   }
@@ -96,6 +95,41 @@ function buildHeatmap(habit) {
   }
 
   return container;
+}
+
+// 📊 Stats helpers
+function weeklyStats(habit) {
+  let done = 0;
+  const todayDate = new Date();
+  const dayOfWeek = todayDate.getDay(); // 0–6
+  const start = new Date(todayDate);
+  start.setDate(todayDate.getDate() - dayOfWeek);
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    const key = d.toISOString().slice(0, 10);
+    if (habit.log[key]) done++;
+  }
+
+  return { done, total: 7 };
+}
+
+function monthlyStats(habit) {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  let done = 0;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = new Date(year, month, d)
+      .toISOString()
+      .slice(0, 10);
+    if (habit.log[key]) done++;
+  }
+
+  return { done, total: daysInMonth };
 }
 
 // 🧱 Render UI
@@ -139,6 +173,21 @@ function render() {
 
     const heatmap = buildHeatmap(habit);
 
+    const week = weeklyStats(habit);
+    const month = monthlyStats(habit);
+
+    const stats = document.createElement("p");
+    stats.style.fontSize = "13px";
+    stats.style.opacity = "0.8";
+    stats.innerHTML = `
+      This week: ${week.done} / ${week.total} (${Math.round(
+        (week.done / week.total) * 100
+      )}%)<br>
+      This month: ${month.done} / ${month.total} (${Math.round(
+        (month.done / month.total) * 100
+      )}%)
+    `;
+
     const monthLabel = document.createElement("div");
     monthLabel.className = "month-label";
     monthLabel.textContent = new Date().toLocaleString("default", {
@@ -150,6 +199,7 @@ function render() {
     card.appendChild(streakText);
     card.appendChild(toggleBtn);
     card.appendChild(heatmap);
+    card.appendChild(stats);
     card.appendChild(monthLabel);
 
     app.appendChild(card);
@@ -161,5 +211,5 @@ function render() {
   app.appendChild(addBtn);
 }
 
-// 🚀 Initial render
+// 🚀 Init
 render();
