@@ -7,29 +7,35 @@
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
 </head>
-<script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./sw.js");
-  }
-</script>
+
 <body>
+
   <header class="top-bar">
-  <button class="menu-btn" onclick="toggleMenu()">☰</button>
-  <div class="title">My Habits</div>
-</header>
+    <button class="menu-btn" onclick="toggleMenu()" aria-label="Menu">
+      ☰
+    </button>
+    <div class="title">My Habits</div>
+  </header>
 
-<nav id="menu" class="menu hidden">
-  <button onclick="addHabit()">➕ Add Habit</button>
-  <button onclick="exportData()">⬇ Export Backup</button>
+  <nav id="menu" class="menu hidden">
+    <button onclick="addHabit()">➕ Add Habit</button>
+    <button onclick="exportData()">⬇ Export Backup</button>
 
-  <label class="menu-import">
-    ⬆ Import Backup
-    <input type="file" hidden onchange="importData(event)">
-  </label>
-</nav>
+    <label class="menu-import">
+      ⬆ Import Backup
+      <input type="file" hidden onchange="importData(event)">
+    </label>
+  </nav>
 
   <main id="app"></main>
 
   <script src="app.js"></script>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js");
+    }
+  </script>
+
 </body>
 </html>
