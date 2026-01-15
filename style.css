@@ -92,3 +92,55 @@ footer {
 .habit-actions button:hover {
   color: #f87171;
 }
+/* Top bar */
+.top-bar {
+  display: flex;
+  align-items: center;
+  padding: 14px;
+  background: #020617;
+}
+
+.menu-btn {
+  font-size: 20px;
+  background: transparent;
+  color: #e5e7eb;
+  margin-right: 12px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Hamburger menu */
+.menu {
+  position: absolute;
+  top: 56px;
+  left: 10px;
+  background: #020617;
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  z-index: 100;
+}
+
+.menu button,
+.menu-import {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 14px;
+  background: transparent;
+  color: #e5e7eb;
+  border-radius: 8px;
+}
+
+.menu button:hover,
+.menu-import:hover {
+  background: #1e293b;
+}
+
+.hidden {
+  display: none;
+}

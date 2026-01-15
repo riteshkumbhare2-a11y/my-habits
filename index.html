@@ -13,17 +13,22 @@
   }
 </script>
 <body>
-  <header>My Habits</header>
+  <header class="top-bar">
+  <button class="menu-btn" onclick="toggleMenu()">☰</button>
+  <div class="title">My Habits</div>
+</header>
+
+<nav id="menu" class="menu hidden">
+  <button onclick="addHabit()">➕ Add Habit</button>
+  <button onclick="exportData()">⬇ Export Backup</button>
+
+  <label class="menu-import">
+    ⬆ Import Backup
+    <input type="file" hidden onchange="importData(event)">
+  </label>
+</nav>
 
   <main id="app"></main>
-
-  <footer>
-    <button onclick="exportData()">⬇ Export</button>
-    <label class="import-btn">
-      ⬆ Import
-      <input type="file" hidden onchange="importData(event)">
-    </label>
-  </footer>
 
   <script src="app.js"></script>
 </body>

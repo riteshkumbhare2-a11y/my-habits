@@ -11,29 +11,46 @@ function save() {
 function today() {
   return new Date().toISOString().slice(0, 10);
 }
-// ⬇ Export full data backup (mobile-safe)
+
+/* 🍔 Hamburger menu toggle */
+function toggleMenu() {
+  document.getElementById("menu").classList.toggle("hidden");
+}
+
+/* ➕ Add habit */
+function addHabit() {
+  toggleMenu();
+  const name = prompt("Habit name?");
+  if (!name) return;
+  data.habits.push({ name: name.trim(), log: {} });
+  save();
+  render();
+}
+
+/* ⬇ Export (mobile-safe) */
 function exportData() {
+  toggleMenu();
+
   const blob = new Blob(
     [JSON.stringify(data, null, 2)],
     { type: "application/json" }
   );
 
   const url = URL.createObjectURL(blob);
-
   const a = document.createElement("a");
   a.href = url;
   a.download = "habit-backup.json";
 
-  // 🔑 Required for mobile/PWA
   document.body.appendChild(a);
   a.click();
-
-  // Cleanup
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
-// ⬆ Import full data backup
+
+/* ⬆ Import */
 function importData(event) {
+  toggleMenu();
+
   const file = event.target.files[0];
   if (!file) return;
 
@@ -41,7 +58,7 @@ function importData(event) {
   reader.onload = () => {
     try {
       const imported = JSON.parse(reader.result);
-      if (!imported.habits) throw new Error("Invalid backup file");
+      if (!imported.habits) throw new Error();
       data = imported;
       save();
       render();
@@ -52,16 +69,8 @@ function importData(event) {
   };
   reader.readAsText(file);
 }
-// ➕ Add habit
-function addHabit() {
-  const name = prompt("Habit name?");
-  if (!name) return;
-  data.habits.push({ name: name.trim(), log: {} });
-  save();
-  render();
-}
 
-// ✅ Toggle habit
+/* ✅ Toggle habit */
 function toggleHabit(habit) {
   const d = today();
   habit.log[d] = !habit.log[d];
@@ -69,7 +78,7 @@ function toggleHabit(habit) {
   render();
 }
 
-// 🔥 Streak
+/* 🔥 Streak calculation */
 function streak(habit) {
   let s = 0;
   let d = new Date();
@@ -83,7 +92,7 @@ function streak(habit) {
   return s;
 }
 
-// ✏️ Edit habit
+/* ✏️ Edit habit */
 function editHabit(habit) {
   const newName = prompt("Edit habit name:", habit.name);
   if (!newName) return;
@@ -92,7 +101,7 @@ function editHabit(habit) {
   render();
 }
 
-// 🗑️ Delete habit
+/* 🗑️ Delete habit */
 function deleteHabit(habit) {
   const ok = confirm(
     `Delete habit "${habit.name}"?\nThis cannot be undone.`
@@ -103,7 +112,7 @@ function deleteHabit(habit) {
   render();
 }
 
-// 📆 Heatmap (current month)
+/* 📆 Heatmap (current month) */
 function buildHeatmap(habit) {
   const container = document.createElement("div");
   container.className = "heatmap";
@@ -137,13 +146,12 @@ function buildHeatmap(habit) {
   return container;
 }
 
-// 📊 Stats helpers
+/* 📊 Weekly stats */
 function weeklyStats(habit) {
   let done = 0;
-  const todayDate = new Date();
-  const dayOfWeek = todayDate.getDay(); // 0–6
-  const start = new Date(todayDate);
-  start.setDate(todayDate.getDate() - dayOfWeek);
+  const now = new Date();
+  const start = new Date(now);
+  start.setDate(now.getDate() - now.getDay());
 
   for (let i = 0; i < 7; i++) {
     const d = new Date(start);
@@ -155,6 +163,7 @@ function weeklyStats(habit) {
   return { done, total: 7 };
 }
 
+/* 📊 Monthly stats */
 function monthlyStats(habit) {
   const now = new Date();
   const year = now.getFullYear();
@@ -172,7 +181,7 @@ function monthlyStats(habit) {
   return { done, total: daysInMonth };
 }
 
-// 🧱 Render UI
+/* 🧱 Render UI */
 function render() {
   app.innerHTML = "";
 
@@ -180,7 +189,6 @@ function render() {
     const card = document.createElement("div");
     card.className = "habit";
 
-    // Header
     const header = document.createElement("div");
     header.className = "habit-header";
 
@@ -244,12 +252,7 @@ function render() {
 
     app.appendChild(card);
   });
-
-  const addBtn = document.createElement("button");
-  addBtn.textContent = "+ Add Habit";
-  addBtn.onclick = addHabit;
-  app.appendChild(addBtn);
 }
 
-// 🚀 Init
+/* 🚀 Init */
 render();
