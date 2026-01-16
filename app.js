@@ -1,8 +1,6 @@
 const app = document.getElementById("app");
 
-let data = JSON.parse(localStorage.getItem("habits")) || {
-  habits: []
-};
+let data = JSON.parse(localStorage.getItem("habits")) || { habits: [] };
 
 function save() {
   localStorage.setItem("habits", JSON.stringify(data));
@@ -12,12 +10,12 @@ function today() {
   return new Date().toISOString().slice(0, 10);
 }
 
-/* 🍔 Hamburger menu toggle */
+/* Menu */
 function toggleMenu() {
   document.getElementById("menu").classList.toggle("hidden");
 }
 
-/* ➕ Add habit */
+/* Add habit */
 function addHabit() {
   toggleMenu();
   const name = prompt("Habit name?");
@@ -27,50 +25,35 @@ function addHabit() {
   render();
 }
 
-/* ⬇ Export (mobile-safe) */
+/* Export */
 function exportData() {
   toggleMenu();
-
-  const blob = new Blob(
-    [JSON.stringify(data, null, 2)],
-    { type: "application/json" }
-  );
-
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
   a.download = "habit-backup.json";
-
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
 
-/* ⬆ Import */
+/* Import */
 function importData(event) {
   toggleMenu();
-
   const file = event.target.files[0];
   if (!file) return;
-
   const reader = new FileReader();
   reader.onload = () => {
-    try {
-      const imported = JSON.parse(reader.result);
-      if (!imported.habits) throw new Error();
-      data = imported;
-      save();
-      render();
-      alert("Backup restored successfully");
-    } catch {
-      alert("Invalid backup file");
-    }
+    data = JSON.parse(reader.result);
+    save();
+    render();
   };
   reader.readAsText(file);
 }
 
-/* ✅ Toggle habit */
+/* Toggle habit */
 function toggleHabit(habit) {
   const d = today();
   habit.log[d] = !habit.log[d];
@@ -78,11 +61,10 @@ function toggleHabit(habit) {
   render();
 }
 
-/* 🔥 Streak calculation */
+/* Streak */
 function streak(habit) {
   let s = 0;
   let d = new Date();
-
   while (true) {
     const key = d.toISOString().slice(0, 10);
     if (habit.log[key]) s++;
@@ -92,167 +74,82 @@ function streak(habit) {
   return s;
 }
 
-/* ✏️ Edit habit */
-function editHabit(habit) {
-  const newName = prompt("Edit habit name:", habit.name);
-  if (!newName) return;
-  habit.name = newName.trim();
+/* Edit/Delete */
+function editHabit(h) {
+  const name = prompt("Edit habit name:", h.name);
+  if (!name) return;
+  h.name = name.trim();
   save();
   render();
 }
 
-/* 🗑️ Delete habit */
-function deleteHabit(habit) {
-  const ok = confirm(
-    `Delete habit "${habit.name}"?\nThis cannot be undone.`
-  );
-  if (!ok) return;
-  data.habits = data.habits.filter(h => h !== habit);
+function deleteHabit(h) {
+  if (!confirm(`Delete "${h.name}"?`)) return;
+  data.habits = data.habits.filter(x => x !== h);
   save();
   render();
 }
 
-/* 📆 Heatmap (current month) */
-function buildHeatmap(habit) {
-  const container = document.createElement("div");
-  container.className = "heatmap";
-
+/* Heatmap */
+function buildHeatmap(h) {
+  const c = document.createElement("div");
+  c.className = "heatmap";
   const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
+  const y = now.getFullYear();
+  const m = now.getMonth();
+  const first = new Date(y, m, 1).getDay();
+  const days = new Date(y, m + 1, 0).getDate();
 
-  const firstDay = new Date(year, month, 1);
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  for (let i = 0; i < first; i++) c.appendChild(document.createElement("div"));
 
-  for (let i = 0; i < firstDay.getDay(); i++) {
-    container.appendChild(document.createElement("div"));
+  for (let d = 1; d <= days; d++) {
+    const key = new Date(y, m, d).toISOString().slice(0, 10);
+    const el = document.createElement("div");
+    el.className = "day" + (h.log[key] ? " done" : "");
+    c.appendChild(el);
   }
-
-  for (let d = 1; d <= daysInMonth; d++) {
-    const date = new Date(year, month, d)
-      .toISOString()
-      .slice(0, 10);
-
-    const day = document.createElement("div");
-    day.className = "day";
-
-    if (habit.log[date]) {
-      day.classList.add("done");
-    }
-
-    container.appendChild(day);
-  }
-
-  return container;
+  return c;
 }
 
-/* 📊 Weekly stats */
-function weeklyStats(habit) {
-  let done = 0;
-  const now = new Date();
-  const start = new Date(now);
-  start.setDate(now.getDate() - now.getDay());
-
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(start);
-    d.setDate(start.getDate() + i);
-    const key = d.toISOString().slice(0, 10);
-    if (habit.log[key]) done++;
-  }
-
-  return { done, total: 7 };
-}
-
-/* 📊 Monthly stats */
-function monthlyStats(habit) {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  let done = 0;
-  for (let d = 1; d <= daysInMonth; d++) {
-    const key = new Date(year, month, d)
-      .toISOString()
-      .slice(0, 10);
-    if (habit.log[key]) done++;
-  }
-
-  return { done, total: daysInMonth };
-}
-
-/* 🧱 Render UI */
+/* Render */
 function render() {
   app.innerHTML = "";
 
-  data.habits.forEach(habit => {
+  data.habits.forEach(h => {
     const card = document.createElement("div");
     card.className = "habit";
 
     const header = document.createElement("div");
     header.className = "habit-header";
 
-    const title = document.createElement("h3");
-    title.textContent = habit.name;
-
-    const actions = document.createElement("div");
-    actions.className = "habit-actions";
-
-    const editBtn = document.createElement("button");
-    editBtn.textContent = "✏️";
-    editBtn.onclick = () => editHabit(habit);
-
-    const delBtn = document.createElement("button");
-    delBtn.textContent = "🗑️";
-    delBtn.onclick = () => deleteHabit(habit);
-
-    actions.appendChild(editBtn);
-    actions.appendChild(delBtn);
-
-    header.appendChild(title);
-    header.appendChild(actions);
-
-    const streakText = document.createElement("p");
-    streakText.textContent = `🔥 Streak: ${streak(habit)}`;
-
-    const toggleBtn = document.createElement("button");
-    toggleBtn.textContent = habit.log[today()] ? "Undo" : "Done Today";
-    toggleBtn.onclick = () => toggleHabit(habit);
-
-    const heatmap = buildHeatmap(habit);
-
-    const week = weeklyStats(habit);
-    const month = monthlyStats(habit);
-
-    const stats = document.createElement("p");
-    stats.style.fontSize = "13px";
-    stats.style.opacity = "0.8";
-    stats.innerHTML = `
-      This week: ${week.done} / ${week.total} (${Math.round(
-        (week.done / week.total) * 100
-      )}%)<br>
-      This month: ${month.done} / ${month.total} (${Math.round(
-        (month.done / month.total) * 100
-      )}%)
+    header.innerHTML = `
+      <h3>${h.name}</h3>
+      <div class="habit-actions">
+        <button onclick="editHabit(data.habits[${data.habits.indexOf(h)}])">✏️</button>
+        <button onclick="deleteHabit(data.habits[${data.habits.indexOf(h)}])">🗑️</button>
+      </div>
     `;
 
-    const monthLabel = document.createElement("div");
-    monthLabel.className = "month-label";
-    monthLabel.textContent = new Date().toLocaleString("default", {
-      month: "long",
-      year: "numeric"
-    });
+    const done = h.log[today()];
+    const btn = document.createElement("button");
+    btn.className = "primary-btn" + (done ? " done" : "");
+    btn.textContent = done ? "✓ Done" : "Done Today";
+    btn.onclick = () => toggleHabit(h);
 
-    card.appendChild(header);
-    card.appendChild(streakText);
-    card.appendChild(toggleBtn);
-    card.appendChild(heatmap);
-    card.appendChild(stats);
-    card.appendChild(monthLabel);
+    const stats = `
+      <div class="stats">
+        🔥 Streak · ${streak(h)}<br>
+        This week · ${Object.keys(h.log).filter(k => new Date(k) >= new Date(Date.now() - 6*864e5)).length} / 7<br>
+        This month · ${Object.keys(h.log).filter(k => k.startsWith(today().slice(0,7))).length} / ${new Date(new Date().getFullYear(), new Date().getMonth()+1,0).getDate()}
+      </div>
+    `;
+
+    card.append(header, btn, buildHeatmap(h));
+    card.insertAdjacentHTML("beforeend", stats);
+    card.insertAdjacentHTML("beforeend", `<div class="month-label">${new Date().toLocaleString("default",{month:"long",year:"numeric"})}</div>`);
 
     app.appendChild(card);
   });
 }
 
-/* 🚀 Init */
 render();

@@ -1,4 +1,4 @@
-/* 🌑 Base layout */
+/* 🌑 Base */
 body {
   margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
@@ -6,15 +6,13 @@ body {
   color: #e5e7eb;
 }
 
-/* =======================
-   🔝 Top Bar / Header
-   ======================= */
+/* ================= HEADER ================= */
 
 .top-bar {
   display: flex;
   align-items: center;
   padding: 14px 16px;
-  background: #020617;
+  background: linear-gradient(180deg, #020617, #020617cc);
   position: sticky;
   top: 0;
   z-index: 200;
@@ -24,13 +22,9 @@ body {
   font-size: 22px;
   background: transparent;
   border: none;
-  color: #e5e7eb; /* critical for visibility */
+  color: #e5e7eb;
   cursor: pointer;
   padding: 4px 8px;
-}
-
-.menu-btn:active {
-  opacity: 0.7;
 }
 
 .title {
@@ -39,9 +33,7 @@ body {
   margin-left: 10px;
 }
 
-/* =======================
-   🍔 Hamburger Menu
-   ======================= */
+/* ================= MENU ================= */
 
 .menu {
   position: absolute;
@@ -82,26 +74,22 @@ body {
   display: none;
 }
 
-/* =======================
-   📦 Main App Area
-   ======================= */
+/* ================= APP ================= */
 
 main {
   padding: 16px;
 }
 
-/* =======================
-   🧩 Habit Card
-   ======================= */
+/* ================= HABIT CARD ================= */
 
 .habit {
-  background: #020617;
-  padding: 14px;
-  border-radius: 16px;
-  margin-bottom: 16px;
+  background: radial-gradient(circle at top, #020617, #020617ee);
+  padding: 18px;
+  border-radius: 20px;
+  margin-bottom: 18px;
 }
 
-/* Header inside habit card */
+/* Header row */
 .habit-header {
   display: flex;
   justify-content: space-between;
@@ -109,70 +97,65 @@ main {
 }
 
 .habit-header h3 {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 600;
   margin: 0;
 }
 
-/* Edit / delete icons */
+/* Edit/Delete icons */
 .habit-actions button {
-  background: transparent;
+  background: #1e293b;
   border: none;
   font-size: 14px;
-  color: #94a3b8;
+  color: #cbd5f5;
   cursor: pointer;
+  padding: 8px;
+  border-radius: 10px;
   margin-left: 8px;
 }
 
 .habit-actions button:hover {
-  color: #f87171;
+  background: #334155;
 }
 
-/* =======================
-   🔘 Buttons
-   ======================= */
-
-.habit button {
-  width: 100%;
-  margin-top: 8px;
-  padding: 10px;
+/* Text */
+.habit p {
+  margin: 10px 0 6px;
   font-size: 14px;
+  color: #cbd5f5;
+}
+
+/* ================= PRIMARY BUTTON ================= */
+
+.primary-btn {
+  width: 100%;
+  margin: 12px 0;
+  padding: 14px;
+  font-size: 15px;
   font-weight: 600;
-  border-radius: 12px;
+  border-radius: 16px;
   border: none;
   cursor: pointer;
   background: #22c55e;
   color: #020617;
 }
 
-.habit button:active {
-  transform: scale(0.98);
+.primary-btn.done {
+  background: #16a34a;
 }
 
-/* =======================
-   🔥 Text elements
-   ======================= */
-
-.habit p {
-  margin: 6px 0;
-  font-size: 13px;
-  color: #cbd5f5;
-}
-
-/* =======================
-   📆 Heatmap
-   ======================= */
+/* ================= HEATMAP ================= */
 
 .heatmap {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
-  margin-top: 10px;
+  gap: 6px;
+  margin-top: 16px;
 }
 
 .day {
   aspect-ratio: 1 / 1;
-  border-radius: 5px;
+  border-radius: 8px;
   background: #1e293b;
 }
 
@@ -180,12 +163,16 @@ main {
   background: #22c55e;
 }
 
-/* =======================
-   📊 Stats & Month Label
-   ======================= */
+/* ================= STATS ================= */
+
+.stats {
+  margin-top: 14px;
+  font-size: 13px;
+  color: #cbd5f5;
+}
 
 .month-label {
-  margin-top: 6px;
-  font-size: 11px;
+  margin-top: 8px;
+  font-size: 12px;
   opacity: 0.6;
 }
